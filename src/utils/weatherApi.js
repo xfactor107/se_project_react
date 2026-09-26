@@ -1,8 +1,24 @@
 import { apiKey, coordinates } from "./constants";
 
-export function getWeatherData() {
+// Resolves with the browser's location, or the default coordinates if the
+// user declines, the browser doesn't support it, or it takes too long.
+export function getUserCoordinates() {
+  return new Promise((resolve) => {
+    if (!navigator.geolocation) {
+      resolve(coordinates);
+      return;
+    }
+    navigator.geolocation.getCurrentPosition(
+      ({ coords }) => resolve({ lat: coords.latitude, lon: coords.longitude }),
+      () => resolve(coordinates),
+      { timeout: 10000, maximumAge: 30 * 60 * 1000 }
+    );
+  });
+}
+
+export function getWeatherData({ lat, lon } = coordinates) {
   return fetch(
-    `https://api.openweathermap.org/data/2.5/weather?lat=${coordinates.lat}&lon=${coordinates.lon}&units=imperial&appid=${apiKey}`
+    `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&units=imperial&appid=${apiKey}`
   ).then((res) => {
     return res.ok
       ? res.json()

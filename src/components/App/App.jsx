@@ -10,7 +10,11 @@ import ConfirmDeleteModal from "../ConfirmDeleteModal/ConfirmDeleteModal";
 import RegisterModal from "../RegisterModal/RegisterModal";
 import LoginModal from "../LoginModal/LoginModal";
 import EditProfileModal from "../EditProfileModal/EditProfileModal";
-import { getWeatherData, parseWeatherData } from "../../utils/weatherApi";
+import {
+  getUserCoordinates,
+  getWeatherData,
+  parseWeatherData,
+} from "../../utils/weatherApi";
 import { CurrentTemperatureUnitContext } from "../../contexts/CurrentTemperatureUnitContext";
 import { Routes, Route, useNavigate, Navigate } from "react-router-dom";
 import Profile from "../Profile/Profile";
@@ -24,6 +28,7 @@ import {
 } from "../../utils/api";
 import { register, login, checkToken } from "../../utils/auth";
 import { CurrentUserContext } from "../../contexts/CurrentUserContext";
+import { defaultClothingItems } from "../../utils/defaultClothingItems";
 
 // Turns an API rejection (JSON error body or Error) into text for the user.
 const getErrorMessage = (err) => {
@@ -134,13 +139,17 @@ function App() {
       .catch((error) => console.error("Error toggling like:", error));
   };
 
+  // Refetch items too, so a new account's starter wardrobe shows up.
   const logIn = ({ email, password }) =>
     login({ email, password }).then((res) => {
       localStorage.setItem("jwt", res.token);
-      return checkToken(res.token).then((userRes) => {
-        setCurrentUser(userRes.data);
-        setIsLoggedIn(true);
-      });
+      return Promise.all([checkToken(res.token), getInitialCards()]).then(
+        ([userRes, items]) => {
+          setClothingItems(items);
+          setCurrentUser(userRes.data);
+          setIsLoggedIn(true);
+        }
+      );
     });
 
   const handleRegister = ({ name, avatar, email, password }) => {
@@ -188,7 +197,8 @@ function App() {
   }, []);
 
   useEffect(() => {
-    getWeatherData()
+    getUserCoordinates()
+      .then(getWeatherData)
       .then((data) => {
         setWeather(parseWeatherData(data));
       })
@@ -205,6 +215,19 @@ function App() {
       })
       .catch((error) => console.error("Error fetching items:", error));
   }, []);
+
+  useEffect(() => {
+    if (!activeModal) return undefined;
+    const handleEscClose = (e) => {
+      if (e.key === "Escape") handleCloseModal();
+    };
+    document.addEventListener("keydown", handleEscClose);
+    return () => document.removeEventListener("keydown", handleEscClose);
+  }, [activeModal]);
+
+  const ownItems = clothingItems.filter(
+    (item) => item.owner === currentUser?._id
+  );
 
   if (isWeatherLoading) {
     return <div>Loading...</div>;
@@ -227,7 +250,7 @@ function App() {
               path="/"
               element={
                 <Main
-                  clothingItems={clothingItems}
+                  clothingItems={isLoggedIn ? ownItems : defaultClothingItems}
                   onCardClick={handleOpenItemModal}
                   weather={weather}
                   onCardLike={handleCardLike}
@@ -239,9 +262,7 @@ function App() {
               element={
                 <ProtectedRoute isLoggedIn={isLoggedIn}>
                   <Profile
-                    clothingItems={clothingItems.filter(
-                      (item) => item.owner === currentUser?._id
-                    )}
+                    clothingItems={ownItems}
                     onAddClick={() => handleOpenModal("add-garment")}
                     onCardClick={handleOpenItemModal}
                     onCardLike={handleCardLike}
