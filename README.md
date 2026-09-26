@@ -13,13 +13,17 @@ The frontend provides a clean, intuitive interface for browsing recommended outf
 This frontend is deployed on Vercel and communicates with a Node/Express backend hosted on Render.
 
 ## Features
-- Real-time weather display using a third-party weather API  
-- Personalized outfit recommendations based on temperature  
-- User authentication (signup/login)  
+- Real-time weather for your location (via the browser), falling back to Tempe, AZ if location is unavailable  
+- Outfit recommendations filtered by the current temperature (hot / warm / cold)  
+- Personal home page: logged-in users see their own wardrobe, visitors see a default one  
+- Fahrenheit / Celsius toggle  
+- User authentication (signup/login) and profile editing (name and avatar)  
 - Full wardrobe management  
   - Add clothing items  
   - Delete clothing items  
   - Like/unlike items  
+- Clear error messages and loading states in forms (e.g. wrong password, server waking up)  
+- Modals close with the Escape key, the close button, or a click outside  
 - Responsive UI built with React  
 - Automatic default wardrobe population for new users  
 - Clean, modern component architecture
