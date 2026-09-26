@@ -8,6 +8,9 @@ export function getUserCoordinates() {
       resolve(coordinates);
       return;
     }
+    // The geolocation timeout only starts once permission is granted, so also
+    // stop waiting if the user leaves the permission prompt unanswered.
+    setTimeout(() => resolve(coordinates), 10000);
     navigator.geolocation.getCurrentPosition(
       ({ coords }) => resolve({ lat: coords.latitude, lon: coords.longitude }),
       () => resolve(coordinates),
