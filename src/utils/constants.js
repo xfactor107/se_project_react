@@ -20,13 +20,26 @@ export const weatherConditions = [
   { type: "Clouds", isDay: false, image: cloudyNight },
   { type: "Rain", isDay: true, image: rainyDay },
   { type: "Rain", isDay: false, image: rainyNight },
-  { type: "Storm", isDay: true, image: stormyDay },
-  { type: "Storm", isDay: false, image: stormyNight },
+  { type: "Thunderstorm", isDay: true, image: stormyDay },
+  { type: "Thunderstorm", isDay: false, image: stormyNight },
   { type: "Snow", isDay: true, image: snowyDay },
   { type: "Snow", isDay: false, image: snowyNight },
   { type: "Mist", isDay: true, image: foggyDay },
   { type: "Mist", isDay: false, image: foggyNight },
 ];
+
+// OpenWeather "main" values that share an image with another condition.
+export const weatherTypeAliases = {
+  Drizzle: "Rain",
+  Squall: "Thunderstorm",
+  Tornado: "Thunderstorm",
+  Fog: "Mist",
+  Haze: "Mist",
+  Smoke: "Mist",
+  Dust: "Mist",
+  Sand: "Mist",
+  Ash: "Mist",
+};
 
 export const defaultImages = {
   day: day,

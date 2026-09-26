@@ -2,7 +2,14 @@ import "./RegisterModal.css";
 import ModalWithForm from "../ModalWithForm/ModalWithForm";
 import useForm from "../../hooks/useForm";
 
-const RegisterModal = ({ isOpen, onClose, onRegister, onLoginClick }) => {
+const RegisterModal = ({
+  isOpen,
+  onClose,
+  onRegister,
+  onLoginClick,
+  isLoading,
+  errorMessage,
+}) => {
   const { values, handleChange } = useForm({
     name: "",
     avatar: "",
@@ -21,6 +28,8 @@ const RegisterModal = ({ isOpen, onClose, onRegister, onLoginClick }) => {
       onClose={onClose}
       isOpen={isOpen}
       onSubmit={handleSubmit}
+      isLoading={isLoading}
+      errorMessage={errorMessage}
       buttonText="Next"
       altButtonText="or Log in"
       onAltClick={onLoginClick}

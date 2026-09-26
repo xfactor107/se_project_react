@@ -2,7 +2,13 @@ import ModalWithForm from "../ModalWithForm/ModalWithForm";
 import useForm from "../../hooks/useForm.js";
 import "./AddItemModal.css";
 
-const AddItemModal = ({ isOpen, onAddItem, onClose }) => {
+const AddItemModal = ({
+  isOpen,
+  onAddItem,
+  onClose,
+  isLoading,
+  errorMessage,
+}) => {
   const { values, handleChange, setValues } = useForm({});
 
   const handleSubmit = (e) => {
@@ -20,6 +26,8 @@ const AddItemModal = ({ isOpen, onAddItem, onClose }) => {
       isOpen={isOpen}
       onClose={onClose}
       onSubmit={handleSubmit}
+      isLoading={isLoading}
+      errorMessage={errorMessage}
     >
       <div className="modal__form-field">
         <label className="modal__label">Name</label>

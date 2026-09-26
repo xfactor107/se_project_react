@@ -4,7 +4,13 @@ import ModalWithForm from "../ModalWithForm/ModalWithForm";
 import useForm from "../../hooks/useForm";
 import { CurrentUserContext } from "../../contexts/CurrentUserContext";
 
-const EditProfileModal = ({ isOpen, onClose, onUpdateUser }) => {
+const EditProfileModal = ({
+  isOpen,
+  onClose,
+  onUpdateUser,
+  isLoading,
+  errorMessage,
+}) => {
   const { values, handleChange, setValues } = useForm({});
   const { currentUser } = useContext(CurrentUserContext);
 
@@ -30,6 +36,8 @@ const EditProfileModal = ({ isOpen, onClose, onUpdateUser }) => {
       isOpen={isOpen}
       onClose={onClose}
       onSubmit={handleSubmit}
+      isLoading={isLoading}
+      errorMessage={errorMessage}
     >
       <div className="modal__form-field">
         <label className="modal__label">Name</label>

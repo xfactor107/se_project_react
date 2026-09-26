@@ -25,6 +25,18 @@ import {
 import { register, login, checkToken } from "../../utils/auth";
 import { CurrentUserContext } from "../../contexts/CurrentUserContext";
 
+// Turns an API rejection (JSON error body or Error) into text for the user.
+const getErrorMessage = (err) => {
+  if (err instanceof TypeError) {
+    return "Couldn't reach the server. It may be waking up, so try again in a minute.";
+  }
+  return (
+    err?.validation?.body?.message ||
+    err?.message ||
+    "Something went wrong. Please try again."
+  );
+};
+
 const ProtectedRoute = ({ isLoggedIn, children }) => {
   return isLoggedIn ? children : <Navigate to="/" replace />;
 };
@@ -34,9 +46,12 @@ function App() {
   const [activeModal, setActiveModal] = useState("");
   const [selectedCard, setSelectedCard] = useState({});
   const [weather, setWeather] = useState(null);
+  const [isWeatherLoading, setIsWeatherLoading] = useState(true);
   const [currentTemperatureUnit, setCurrentTemperatureUnit] = useState("F");
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [currentUser, setCurrentUser] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [formError, setFormError] = useState("");
   const navigate = useNavigate();
 
   const handleToggleSwitchChange = () => {
@@ -44,6 +59,7 @@ function App() {
   };
 
   const handleOpenModal = (modalName) => {
+    setFormError("");
     setActiveModal(modalName);
   };
 
@@ -57,7 +73,22 @@ function App() {
   };
 
   const handleCloseModal = () => {
+    setFormError("");
     setActiveModal("");
+  };
+
+  // Runs a form request, closing the modal on success and showing the error
+  // inside it on failure.
+  const handleSubmit = (request) => {
+    setIsLoading(true);
+    setFormError("");
+    return request()
+      .then(handleCloseModal)
+      .catch((err) => {
+        console.error(err);
+        setFormError(getErrorMessage(err));
+      })
+      .finally(() => setIsLoading(false));
   };
 
   const handleOpenRegisterModal = () => {
@@ -69,13 +100,12 @@ function App() {
   };
 
   const handleAddItem = (item, onReset) => {
-    addItem(item)
-      .then((newItem) => {
-        setClothingItems([newItem.data, ...clothingItems]);
-        handleCloseModal();
+    handleSubmit(() =>
+      addItem(item).then((newItem) => {
+        setClothingItems((items) => [newItem.data, ...items]);
         onReset();
       })
-      .catch((error) => console.error("Error adding item:", error));
+    );
   };
 
   const handleCardDelete = () => {
@@ -104,26 +134,25 @@ function App() {
       .catch((error) => console.error("Error toggling like:", error));
   };
 
+  const logIn = ({ email, password }) =>
+    login({ email, password }).then((res) => {
+      localStorage.setItem("jwt", res.token);
+      return checkToken(res.token).then((userRes) => {
+        setCurrentUser(userRes.data);
+        setIsLoggedIn(true);
+      });
+    });
+
   const handleRegister = ({ name, avatar, email, password }) => {
-    register({ name, avatar, email, password })
-      // eslint-disable-next-line no-unused-vars
-      .then((res) => {
-        handleLogin({ email, password });
-      })
-      .catch((err) => console.error("Registration error:", err));
+    handleSubmit(() =>
+      register({ name, avatar, email, password }).then(() =>
+        logIn({ email, password })
+      )
+    );
   };
 
   const handleLogin = ({ email, password }) => {
-    login({ email, password })
-      .then((res) => {
-        localStorage.setItem("jwt", res.token);
-        return checkToken(res.token).then((userRes) => {
-          setCurrentUser(userRes.data);
-          setIsLoggedIn(true);
-          handleCloseModal();
-        });
-      })
-      .catch((err) => console.error("Login error:", err));
+    handleSubmit(() => logIn({ email, password }));
   };
 
   const handleSignOut = () => {
@@ -134,12 +163,9 @@ function App() {
   };
 
   const handleUpdateUser = (data) => {
-    updateUserProfile(data)
-      .then((res) => {
-        setCurrentUser(res.data);
-        handleCloseModal();
-      })
-      .catch((err) => console.error("Update user error:", err));
+    handleSubmit(() =>
+      updateUserProfile(data).then((res) => setCurrentUser(res.data))
+    );
   };
 
   useEffect(() => {
@@ -168,7 +194,8 @@ function App() {
       })
       .catch((error) => {
         console.error("Failed to fetch weather data:", error);
-      });
+      })
+      .finally(() => setIsWeatherLoading(false));
   }, []);
 
   useEffect(() => {
@@ -179,7 +206,7 @@ function App() {
       .catch((error) => console.error("Error fetching items:", error));
   }, []);
 
-  if (!weather) {
+  if (isWeatherLoading) {
     return <div>Loading...</div>;
   }
 
@@ -191,7 +218,7 @@ function App() {
         <div className="app">
           <Header
             onAddClick={() => handleOpenModal("add-garment")}
-            city={weather.city}
+            city={weather?.city}
             onRegisterClick={handleOpenRegisterModal}
             onLoginClick={handleOpenLoginModal}
           />
@@ -227,23 +254,31 @@ function App() {
           </Routes>
           <Footer />
           <AddItemModal
+            isLoading={isLoading}
+            errorMessage={formError}
             isOpen={activeModal === "add-garment"}
             onClose={handleCloseModal}
             onAddItem={handleAddItem}
           />
           <RegisterModal
+            isLoading={isLoading}
+            errorMessage={formError}
             isOpen={activeModal === "register"}
             onClose={handleCloseModal}
             onRegister={handleRegister}
             onLoginClick={handleOpenLoginModal}
           />
           <LoginModal
+            isLoading={isLoading}
+            errorMessage={formError}
             isOpen={activeModal === "login"}
             onClose={handleCloseModal}
             onLogin={handleLogin}
             onSignUpClick={handleOpenRegisterModal}
           />
           <EditProfileModal
+            isLoading={isLoading}
+            errorMessage={formError}
             isOpen={activeModal === "edit-profile"}
             onClose={handleCloseModal}
             onUpdateUser={handleUpdateUser}

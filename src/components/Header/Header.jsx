@@ -30,7 +30,8 @@ const Header = ({ onAddClick, city, onRegisterClick, onLoginClick }) => {
         </Link>
         <p className="header__place">
           <time className="header__datetime" dateTime={now}>
-            {dateStr},
+            {dateStr}
+            {city && ","}
           </time>{" "}
           {city}
         </p>

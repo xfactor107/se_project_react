@@ -7,6 +7,18 @@ import { CurrentTemperatureUnitContext } from "../../contexts/CurrentTemperature
 
 const Main = ({ clothingItems, onCardClick, weather, onCardLike }) => {
   const { currentTemperatureUnit } = useContext(CurrentTemperatureUnitContext);
+
+  if (!weather) {
+    return (
+      <main className="main">
+        <p className="main__notice" role="alert">
+          Weather data is unavailable right now, so we can&apos;t recommend
+          clothes. Please refresh the page to try again.
+        </p>
+      </main>
+    );
+  }
+
   const temp = weather.temperature[currentTemperatureUnit];
 
   const fahrenheitTemp =
@@ -36,16 +48,16 @@ const Main = ({ clothingItems, onCardClick, weather, onCardLike }) => {
                 key={key}
                 item={itemWithId}
                 onCardClick={onCardClick}
-                onCardLike={onCardLike} // Corrected this line
+                onCardLike={onCardLike}
               />
             );
           })}
         </div>
       </section>
       <div className="main__notice" role="status" aria-live="polite">
-        Note: The backend API is hosted on Render's free tier. Initial requests
-        may take 30–60 seconds to spin up due to instance spin-down after
-        periods of inactivity. Once awake, performance returns to normal.
+        Note: The backend API is hosted on Render&apos;s free tier. Initial
+        requests may take 30–60 seconds to spin up due to instance spin-down
+        after periods of inactivity. Once awake, performance returns to normal.
       </div>
     </main>
   );

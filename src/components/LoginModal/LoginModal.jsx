@@ -2,7 +2,14 @@ import "./LoginModal.css";
 import ModalWithForm from "../ModalWithForm/ModalWithForm";
 import useForm from "../../hooks/useForm";
 
-const LoginModal = ({ isOpen, onClose, onLogin, onSignUpClick }) => {
+const LoginModal = ({
+  isOpen,
+  onClose,
+  onLogin,
+  onSignUpClick,
+  isLoading,
+  errorMessage,
+}) => {
   const { values, handleChange } = useForm({
     email: "",
     password: "",
@@ -19,6 +26,8 @@ const LoginModal = ({ isOpen, onClose, onLogin, onSignUpClick }) => {
       onClose={onClose}
       isOpen={isOpen}
       onSubmit={handleSubmit}
+      isLoading={isLoading}
+      errorMessage={errorMessage}
       buttonText="Log in"
       altButtonText="or Sign Up"
       onAltClick={onSignUpClick}

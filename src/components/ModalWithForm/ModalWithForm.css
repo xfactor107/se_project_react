@@ -119,6 +119,18 @@
   opacity: 0.6;
 }
 
+.modal__submit-button:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.modal__error {
+  color: #ff4d00;
+  font-size: 14px;
+  line-height: 18px;
+  margin: 0 0 16px;
+}
+
 .modal__container_type_form {
   padding: 28px 28px 36px;
   max-width: 496px;

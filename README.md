@@ -27,6 +27,7 @@ This frontend is deployed on Vercel and communicates with a Node/Express backend
 ## Tech Stack
 - React  
 - JavaScript  
+- Vite  
 - CSS  
 - Fetch API  
 - Vercel Deployment  
@@ -41,33 +42,33 @@ Backend (Render):
 https://se-project-express-vfq4.onrender.com
 
 ## Project Structure
+```
 src/
-
-components/
-
-contexts/
-
-hooks/
-
-utils/
-
-images/
-
-App.js
-
-index.js
+  components/   # one folder per component (JSX + CSS)
+  contexts/     # current user and temperature unit
+  hooks/        # useForm
+  utils/        # API, auth, and weather helpers
+  assets/       # images
+  main.jsx
+```
 
 ## Installation & Setup
-1. Clone the repo  
-2. Install dependencies  
-npm install
-3. Create a `.env` file  
-REACT_APP_API_URL=https://se-project-express-vfq4.onrender.com
-4. Start the development server  
-npm start
+1. Clone the repo
+2. Install dependencies
+   ```
+   npm install
+   ```
+3. Set the backend URL in `.env` (or `.env.local` to override it locally)
+   ```
+   VITE_API_URL=http://localhost:3001
+   ```
+4. Start the development server (opens at http://localhost:3000)
+   ```
+   npm run dev
+   ```
 
 ## Backend Repository
-https://github.com/ajjime11/se_project_express
+https://github.com/xfactor107/se_project_express
 
 ## Author
 Developed by **Alejandro Jimenez**
